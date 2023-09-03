@@ -1,3 +1,5 @@
+package com.example.threads.model;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.*;
@@ -11,27 +13,28 @@ public class ServerPoolManager {
         this.lock = new ReentrantLock();
     }
 
-    public int allocateServerSpace(int requestedCapacity, String user) {
+    public String allocateServerSpace(int requestedCapacity) {
         lock.lock();
         try {
             for (ServerPool pool : pools) {
                 int allocated = pool.allocateCapacity(requestedCapacity);
                 if (allocated > 0) {
-                    System.out.println("Pool-" + ServerPool.getCount() + " " + user + " " + allocated);
-                    return allocated;
+                    System.out.println(Thread.currentThread().getName() + " " + "Pool-" + ServerPool.getCount() + " " + pool.getAvailableCapacity());
+                    return Thread.currentThread().getName() + " " + "Pool-" + ServerPool.getCount();
                 }
             }
 
             // No existing pool had enough space, create a new one
             ServerPool newPool = new ServerPool(1000); // Assuming each pool is 1000 GB
+            System.out.println(Thread.currentThread().getName() + " " + "Pool-" + ServerPool.getCount() + " " + newPool.getAvailableCapacity());
             int allocated = newPool.allocateCapacity(requestedCapacity);
-            System.out.println("Pool-" + ServerPool.getCount() + " " + user + " " + allocated);
             pools.add(newPool);
-            return allocated;
+            return Thread.currentThread().getName() + " " + "Pool-" + ServerPool.getCount();
         } finally {
             lock.unlock();
         }
     }
+
     public void releaseServerSpace(int releasedCapacity) {
         lock.lock();
         try {

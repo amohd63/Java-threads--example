@@ -1,3 +1,5 @@
+package com.example.threads.model;
+
 public class ServerPool {
     private static int count;
     private int totalCapacity;
